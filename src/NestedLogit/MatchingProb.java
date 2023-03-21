@@ -6,6 +6,9 @@ public class MatchingProb {
     double a = 3;
     double b = 2;
     double c = 10;
+
+
+    
     int driver_class_count;
     int passenger_class_count;
     double[] driver_afford_rate;
