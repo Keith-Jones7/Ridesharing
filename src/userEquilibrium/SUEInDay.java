@@ -1,6 +1,8 @@
 package userEquilibrium;
 
 
+import userEquilibrium.common.Param;
+
 public class SUEInDay extends SUE {
 
     int time;//当前时间
@@ -29,34 +31,34 @@ public class SUEInDay extends SUE {
         this.pre_time = pre_time;
         this.pre_day = pre_day;
         for(int i = 0; i < W; i++) {
-            for(int j = 0; j < M; j++) {
+            for(int j = 0; j < Param.M; j++) {
                 if(pre_day == null) {
-                    Prob_solve[i][j] = 1.0 / M;
+                    probSolve[i][j] = 1.0 / Param.M;
                 }else {
-                    Prob_solve[i][j] = pre_day.Prob_solve[i][j];
+                    probSolve[i][j] = pre_day.probSolve[i][j];
                 }
             }
         }
         for(int i = 0; i < W; i++) {
-            for(int j = 0; j < M; j++) {
-                NA[i][j] = size_rate[i] * Prob_solve[i][j] * Nt;
+            for(int j = 0; j < Param.M; j++) {
+                na[i][j] = size_rate[i] * probSolve[i][j] * Nt;
             }
         }
         updateCost();
         updateProb();
         System.out.println("期望比例");
-        printMatrix(Prob_solve);
+        printMatrix(probSolve);
         updateProbSolve();
         updateNR();
         System.out.println("实际比例");
-        printMatrix(Prob);
+        printMatrix(prob);
         System.out.println("出行成本");
         printMatrix(cost);
     }
 
     public void updateProbSolve() {
         for(int i = 0; i < W; i++) {
-            if (M >= 0) System.arraycopy(Prob[i], 0, Prob_solve[i], 0, M);
+            if (Param.M >= 0) System.arraycopy(prob[i], 0, probSolve[i], 0, Param.M);
         }
     }
     /**
@@ -66,27 +68,27 @@ public class SUEInDay extends SUE {
         double[] driver_count = new double[W];
         double[] passenger_count = new double[W];
         for(int i = 0; i < W; i++) {
-            driver_count[i] = NA[i][2];
-            passenger_count[i] = NA[i][3];
+            driver_count[i] = na[i][2];
+            passenger_count[i] = na[i][3];
         }
         Cost cal_cost = new Cost(vt);
         if(pre_day == null) {
             for(int i = 0; i < W; i++) {
-                cost[i] = cal_cost.calCost(driver_afford_rate, passenger_afford_rate,
+                cost[i] = cal_cost.calCost(driverAffordRate, passengerAffordRate,
                         new double[W], new double[W], 0, 0,
-                        this.NR, i);
+                        this.nr, i);
             }
         }else {
             for(int i = 0; i < W; i++) {
-                cost[i] = cal_cost.calCost(driver_afford_rate, passenger_afford_rate,
-                        pre_day.matching.solution.matching_rate_driver[i], pre_day.matching.solution.matching_rate_passenger[i],
-                        pre_day.matching.solution.matching_rate_sum_driver[i], pre_day.matching.solution.matching_rate_sum_passenger[i],
-                        this.NR, i);
+                cost[i] = cal_cost.calCost(driverAffordRate, passengerAffordRate,
+                        pre_day.matching.solution.matchingRateDriver[i], pre_day.matching.solution.matchingRatePassenger[i],
+                        pre_day.matching.solution.matchingRateSumDriver[i], pre_day.matching.solution.matchingRateSumPassenger[i],
+                        this.nr, i);
             }
         }
         if(matching == null) {
             matching = new MatchingProcess(W, W,
-                    driver_afford_rate, passenger_afford_rate,
+                    driverAffordRate, passengerAffordRate,
                     driver_count, passenger_count);
         }else {
             matching.setParam(driver_count, passenger_count);
@@ -107,17 +109,17 @@ public class SUEInDay extends SUE {
     public void updateNR() {
         if(pre_time == null) {
             for(int i = 0; i < W; i++) {
-                NR[i][0] = NA[i][0];
-                NR[i][1] = NA[i][1];
-                NR[i][2] = matching.solution.matching_rate_sum_driver[i] * NA[i][2];
-                NR[i][3] = matching.solution.matching_rate_sum_passenger[i] * NA[i][3];
+                nr[i][0] = na[i][0];
+                nr[i][1] = na[i][1];
+                nr[i][2] = matching.solution.matchingRateSumDriver[i] * na[i][2];
+                nr[i][3] = matching.solution.matchingRateSumPassenger[i] * na[i][3];
             }
         }else {
             for(int i = 0; i < W; i++) {
-                NR[i][0] = NA[i][0] + (pre_time.NA[i][3] - pre_time.NR[i][3]);
-                NR[i][1] = NA[i][1] + (pre_time.NA[i][2] - pre_time.NR[i][2]);
-                NR[i][2] = matching.solution.matching_rate_sum_driver[i] * NA[i][2];
-                NR[i][3] = matching.solution.matching_rate_sum_passenger[i] * NA[i][3];
+                nr[i][0] = na[i][0] + (pre_time.na[i][3] - pre_time.nr[i][3]);
+                nr[i][1] = na[i][1] + (pre_time.na[i][2] - pre_time.nr[i][2]);
+                nr[i][2] = matching.solution.matchingRateSumDriver[i] * na[i][2];
+                nr[i][3] = matching.solution.matchingRateSumPassenger[i] * na[i][3];
             }
         }
     }

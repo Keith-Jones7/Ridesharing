@@ -6,13 +6,13 @@ import ilog.concert.IloNumVarType;
 import ilog.cplex.IloCplex;
 
 class Solution {
-    double[][] matching_result_driver;
-    double[][] matching_result_passenger;
-    double[][] matching_rate_driver;
-    double[][] matching_rate_passenger;
-    double[] matching_rate_sum_driver;
-    double[] matching_rate_sum_passenger;
-    double[] matching_sum;
+    double[][] matchingResultDriver;
+    double[][] matchingResultPassenger;
+    double[][] matchingRateDriver;
+    double[][] matchingRatePassenger;
+    double[] matchingRateSumDriver;
+    double[] matchingRateSumPassenger;
+    double[] matchingSum;
 }
 public class MatchingProcess {
     double A = 1;
@@ -20,91 +20,92 @@ public class MatchingProcess {
     double b = 1;
     double c = 1;
 
-    int[][] matching_matrix;
-    double[] driver_afford_rate;
-    double[] passenger_afford_rate;
+    double[][] matchingMatrix;
+    double[] driverAffordRate;
+    double[] passengerAffordRate;
     int[] gender;
-    double[] driver_count;
-    double[] passenger_count;
+    double[] driverCount;
+    double[] passengerCount;
     Solution solution;
-    int driver_class_count;
-    int passenger_class_count;
+    int driverClassCount;
+    int passengerClassCount;
     IloCplex model;
 
     /**
      *
-     * @param driver_class_count        司机种类
-     * @param passenger_class_count     乘客种类
-     * @param driver_afford_rate        司机意愿承担比例
-     * @param passenger_afford_rate     乘客意愿承担比例
-     * @param driver_count              司机各类数量
-     * @param passenger_count           乘客各类数量
+     * @param driverClassCount        司机种类
+     * @param passengerClassCount     乘客种类
+     * @param driverAffordRate        司机意愿承担比例
+     * @param passengerAffordRate     乘客意愿承担比例
+     * @param driverCount              司机各类数量
+     * @param passengerCount           乘客各类数量
      */
-    public MatchingProcess(int driver_class_count, int passenger_class_count,
-                           double[] driver_afford_rate, double[] passenger_afford_rate,
-                           double[] driver_count, double[] passenger_count) {
-        matching_matrix = new int[driver_class_count][passenger_class_count];
-        this.driver_class_count = driver_class_count;
-        this.passenger_class_count = passenger_class_count;
+    public MatchingProcess(int driverClassCount, int passengerClassCount,
+                           double[] driverAffordRate, double[] passengerAffordRate,
+                           double[] driverCount, double[] passengerCount) {
+        matchingMatrix = new double[driverClassCount][passengerClassCount];
+        this.driverClassCount = driverClassCount;
+        this.passengerClassCount = passengerClassCount;
 
-        for(int i = 0; i < driver_class_count; i++) {
-            for(int j = 0; j < passenger_class_count; j++) {
-                if((driver_afford_rate[i] + passenger_afford_rate[j] >= 1)) {
-                    matching_matrix[i][j] = 1;
-                }else {
-                    matching_matrix[i][j] = 0;
-                }
+        for(int i = 0; i < driverClassCount; i++) {
+            for(int j = 0; j < passengerClassCount; j++) {
+                matchingMatrix[i][j] = driverAffordRate[i] + passengerAffordRate[j];
+//                if((driverAffordRate[i] + passengerAffordRate[j] >= 1)) {
+//                    matchingMatrix[i][j] = 1;
+//                }else {
+//                    matchingMatrix[i][j] = 0;
+//                }
             }
         }
-        this.driver_count = driver_count;
-        this.passenger_count = passenger_count;
-        this.driver_afford_rate = driver_afford_rate;
-        this.passenger_afford_rate = passenger_afford_rate;
+        this.driverCount = driverCount;
+        this.passengerCount = passengerCount;
+        this.driverAffordRate = driverAffordRate;
+        this.passengerAffordRate = passengerAffordRate;
     }
 
     /**
      *
-     * @param driver_class_count        司机种类
-     * @param passenger_class_count     乘客种类
-     * @param driver_afford_rate        司机意愿承担比例
-     * @param passenger_afford_rate     乘客意愿承担比例
+     * @param driverClassCount        司机种类
+     * @param passengerClassCount     乘客种类
+     * @param driverAffordRate        司机意愿承担比例
+     * @param passengerAffordRate     乘客意愿承担比例
      * @param gender                    性别标识
-     * @param driver_count              司机各类数量
-     * @param passenger_count           乘客各类数量
+     * @param driverCount              司机各类数量
+     * @param passengerCount           乘客各类数量
      */
-    public MatchingProcess(int driver_class_count, int passenger_class_count,
-                           double[] driver_afford_rate, double[] passenger_afford_rate, int[] gender,
-                           double[] driver_count, double[] passenger_count) {
-        matching_matrix = new int[driver_class_count][passenger_class_count];
-        this.driver_class_count = driver_class_count;
-        this.passenger_class_count = passenger_class_count;
+    public MatchingProcess(int driverClassCount, int passengerClassCount,
+                           double[] driverAffordRate, double[] passengerAffordRate, int[] gender,
+                           double[] driverCount, double[] passengerCount) {
+        matchingMatrix = new double[driverClassCount][passengerClassCount];
+        this.driverClassCount = driverClassCount;
+        this.passengerClassCount = passengerClassCount;
 
-        for(int i = 0; i < driver_class_count; i++) {
-            for(int j = 0; j < passenger_class_count; j++) {
-                if((driver_afford_rate[i] + passenger_afford_rate[j] >= 1) && (
+        for(int i = 0; i < driverClassCount; i++) {
+            for(int j = 0; j < passengerClassCount; j++) {
+                if((driverAffordRate[i] + passengerAffordRate[j] >= 1) && (
                         Math.abs(gender[i] + gender[j]) * (gender[i] * gender[j]) >= 0
                         )) {
-                    matching_matrix[i][j] = 1;
+                    matchingMatrix[i][j] = 1;
                 }else {
-                    matching_matrix[i][j] = 0;
+                    matchingMatrix[i][j] = 0;
                 }
             }
         }
-        this.driver_count = driver_count;
-        this.passenger_count = passenger_count;
-        this.driver_afford_rate = driver_afford_rate;
-        this.passenger_afford_rate = passenger_afford_rate;
+        this.driverCount = driverCount;
+        this.passengerCount = passengerCount;
+        this.driverAffordRate = driverAffordRate;
+        this.passengerAffordRate = passengerAffordRate;
         this.gender = gender;
     }
 
     /**
      * 重置司机乘客参数
-     * @param driver_count      司机各类数量
-     * @param passenger_count   乘客各类数量
+     * @param driverCount      司机各类数量
+     * @param passengerCount   乘客各类数量
      */
-    public void setParam(double[] driver_count, double[] passenger_count) {
-        this.driver_count = driver_count;
-        this.passenger_count = passenger_count;
+    public void setParam(double[] driverCount, double[] passengerCount) {
+        this.driverCount = driverCount;
+        this.passengerCount = passengerCount;
     }
 
     /**
@@ -121,29 +122,29 @@ public class MatchingProcess {
         model.setOut(null);
 
         //决策变量
-        IloNumVar[][] ND = new IloNumVar[driver_class_count][passenger_class_count];
-        IloNumVar[][] NP = new IloNumVar[passenger_class_count][driver_class_count];
-        for(int i = 0; i < driver_class_count; i++) {
-            for(int j = 0; j < passenger_class_count; j++) {
+        IloNumVar[][] ND = new IloNumVar[driverClassCount][passengerClassCount];
+        IloNumVar[][] NP = new IloNumVar[passengerClassCount][driverClassCount];
+        for(int i = 0; i < driverClassCount; i++) {
+            for(int j = 0; j < passengerClassCount; j++) {
                 ND[i][j] = model.numVar(0, Double.MAX_VALUE, IloNumVarType.Float, "ND" + i + "," + j);
                 NP[j][i] = model.numVar(0, Double.MAX_VALUE, IloNumVarType.Float, "NP" + j + "," + i);
             }
         }
         //目标函数
         IloNumExpr obj1 = model.numExpr();
-        for(int i = 0; i < driver_class_count; i++) {
-            for(int j = 0; j < passenger_class_count; j++) {
-                obj1 = model.sum(obj1, model.prod(driver_afford_rate[i], ND[i][j]));
+        for(int i = 0; i < driverClassCount; i++) {
+            for(int j = 0; j < passengerClassCount; j++) {
+                obj1 = model.sum(obj1, model.prod(driverAffordRate[i], ND[i][j]));
             }
         }
-        for(int j = 0; j < passenger_class_count; j++) {
-            for(int i = 0; i < driver_class_count; i++) {
-                obj1 = model.sum(obj1, model.prod(passenger_afford_rate[j], NP[j][i]));
+        for(int j = 0; j < passengerClassCount; j++) {
+            for(int i = 0; i < driverClassCount; i++) {
+                obj1 = model.sum(obj1, model.prod(passengerAffordRate[j], NP[j][i]));
             }
         }
         IloNumExpr obj2 = model.numExpr();
-        for(int i = 0; i < driver_class_count; i++) {
-            for(int j = 0; j < passenger_class_count; j++) {
+        for(int i = 0; i < driverClassCount; i++) {
+            for(int j = 0; j < passengerClassCount; j++) {
                 obj2 = model.sum(obj2, NP[i][j]);
             }
         }
@@ -157,84 +158,84 @@ public class MatchingProcess {
         //约束条件
 
         //实际匹配人数小于意愿人数
-        for(int i = 0; i < driver_class_count; i++) {
+        for(int i = 0; i < driverClassCount; i++) {
             IloNumExpr expr1 = model.numExpr();
-            for(int j = 0; j < passenger_class_count; j++) {
+            for(int j = 0; j < passengerClassCount; j++) {
                 expr1 = model.sum(expr1, ND[i][j]);
             }
-            model.addLe(expr1, driver_count[i]);
+            model.addLe(expr1, driverCount[i]);
         }
-        for(int j = 0; j < passenger_class_count; j++) {
+        for(int j = 0; j < passengerClassCount; j++) {
             IloNumExpr expr2 = model.numExpr();
-            for(int i = 0; i < driver_class_count; i++) {
+            for(int i = 0; i < driverClassCount; i++) {
                 expr2 = model.sum(expr2, NP[j][i]);
             }
-            model.addLe(expr2, passenger_count[j]);
+            model.addLe(expr2, passengerCount[j]);
         }
 
         //匹配对应人数相等
-        for(int i = 0; i < driver_class_count; i++) {
-            for(int j = 0; j < passenger_class_count; j++) {
+        for(int i = 0; i < driverClassCount; i++) {
+            for(int j = 0; j < passengerClassCount; j++) {
                 IloNumExpr expr1 = model.numExpr();
                 expr1 = model.sum(expr1, ND[i][j]);
                 IloNumExpr expr2 = model.numExpr();
                 expr2 = model.sum(expr2, NP[j][i]);
 
-                model.addEq(expr1, model.prod(expr2, matching_matrix[i][j]));
+                model.addEq(expr1, model.prod(expr2, matchingMatrix[i][j]));
                 model.addGe(expr1, 0);
-                model.addEq(expr2, model.prod(expr1, matching_matrix[i][j]));
+                model.addEq(expr2, model.prod(expr1, matchingMatrix[i][j]));
                 model.addGe(expr2, 0);
             }
         }
         model.solve();
         //将结果输出
         solution = new Solution();
-        solution.matching_result_driver = new double[driver_class_count][passenger_class_count];
-        solution.matching_result_passenger = new double[passenger_class_count][driver_class_count];
-        solution.matching_rate_driver = new double[driver_class_count][passenger_class_count];
-        solution.matching_rate_passenger = new double[passenger_class_count][driver_class_count];
-        solution.matching_rate_sum_driver = new double[driver_class_count];
-        solution.matching_rate_sum_passenger = new double[passenger_class_count];
-        solution.matching_sum = new double[2];
-        for(int i = 0; i < driver_class_count; i++) {
-            for(int j = 0; j < passenger_class_count; j++) {
-                solution.matching_result_driver[i][j] = model.getValue(ND[i][j]);
-                if(driver_count[i] == 0) {
-                    solution.matching_rate_driver[i][j] = 0;
+        solution.matchingResultDriver = new double[driverClassCount][passengerClassCount];
+        solution.matchingResultPassenger = new double[passengerClassCount][driverClassCount];
+        solution.matchingRateDriver = new double[driverClassCount][passengerClassCount];
+        solution.matchingRatePassenger = new double[passengerClassCount][driverClassCount];
+        solution.matchingRateSumDriver = new double[driverClassCount];
+        solution.matchingRateSumPassenger = new double[passengerClassCount];
+        solution.matchingSum = new double[2];
+        for(int i = 0; i < driverClassCount; i++) {
+            for(int j = 0; j < passengerClassCount; j++) {
+                solution.matchingResultDriver[i][j] = model.getValue(ND[i][j]);
+                if(driverCount[i] == 0) {
+                    solution.matchingRateDriver[i][j] = 0;
                 }else {
-                    solution.matching_rate_driver[i][j] = solution.matching_result_driver[i][j] / driver_count[i];
+                    solution.matchingRateDriver[i][j] = solution.matchingResultDriver[i][j] / driverCount[i];
                 }
-                solution.matching_result_passenger[j][i] = model.getValue(NP[j][i]);
-                if(passenger_count[j] == 0) {
-                    solution.matching_rate_passenger[j][i] = 0;
+                solution.matchingResultPassenger[j][i] = model.getValue(NP[j][i]);
+                if(passengerCount[j] == 0) {
+                    solution.matchingRatePassenger[j][i] = 0;
                 }else {
-                    solution.matching_rate_passenger[j][i] = solution.matching_result_passenger[j][i] / passenger_count[j];
+                    solution.matchingRatePassenger[j][i] = solution.matchingResultPassenger[j][i] / passengerCount[j];
                 }
             }
         }
-        for(int i = 0; i < driver_class_count; i++) {
+        for(int i = 0; i < driverClassCount; i++) {
             double sum = 0;
-            for(int j = 0; j < passenger_class_count; j++) {
-                sum += solution.matching_result_driver[i][j];
+            for(int j = 0; j < passengerClassCount; j++) {
+                sum += solution.matchingResultDriver[i][j];
             }
-            if(driver_count[i] == 0) {
-                solution.matching_rate_sum_driver[i] = 0;
+            if(driverCount[i] == 0) {
+                solution.matchingRateSumDriver[i] = 0;
             }else {
-                solution.matching_rate_sum_driver[i] = sum / driver_count[i];
+                solution.matchingRateSumDriver[i] = sum / driverCount[i];
             }
-            solution.matching_sum[0] += sum;
+            solution.matchingSum[0] += sum;
         }
-        for(int j = 0; j < passenger_class_count; j++) {
+        for(int j = 0; j < passengerClassCount; j++) {
             double sum = 0;
-            for(int i = 0; i < driver_class_count; i++) {
-                sum += solution.matching_result_passenger[j][i];
+            for(int i = 0; i < driverClassCount; i++) {
+                sum += solution.matchingResultPassenger[j][i];
             }
-            if(passenger_count[j] == 0) {
-                solution.matching_rate_sum_passenger[j] = 0;
+            if(passengerCount[j] == 0) {
+                solution.matchingRateSumPassenger[j] = 0;
             }else {
-                solution.matching_rate_sum_passenger[j] = sum / passenger_count[j];
+                solution.matchingRateSumPassenger[j] = sum / passengerCount[j];
             }
-            solution.matching_sum[1] += sum;
+            solution.matchingSum[1] += sum;
         }
         model.clearModel();
     }
@@ -244,25 +245,25 @@ public class MatchingProcess {
      */
     public void matching() {
         solution = new Solution();
-        solution.matching_rate_driver = new double[driver_class_count][passenger_class_count];
-        solution.matching_rate_passenger = new double[passenger_class_count][driver_class_count];
-        solution.matching_rate_sum_driver = new double[driver_class_count];
-        solution.matching_rate_sum_passenger = new double[passenger_class_count];
-        solution.matching_result_driver = new double[driver_class_count][passenger_class_count];
-        solution.matching_result_passenger = new double[passenger_class_count][driver_class_count];
-        for(int i = 0; i < driver_class_count; i++) {
-            for(int j = 0; j < passenger_class_count; j++) {
-                solution.matching_rate_driver[i][j] = Prob_i_to_j(driver_count, passenger_count, i, j, 0);
-                solution.matching_result_driver[i][j] = driver_count[i] * solution.matching_rate_driver[i][j];
-                solution.matching_rate_sum_driver[i] += solution.matching_rate_driver[i][j];
+        solution.matchingRateDriver = new double[driverClassCount][passengerClassCount];
+        solution.matchingRatePassenger = new double[passengerClassCount][driverClassCount];
+        solution.matchingRateSumDriver = new double[driverClassCount];
+        solution.matchingRateSumPassenger = new double[passengerClassCount];
+        solution.matchingResultDriver = new double[driverClassCount][passengerClassCount];
+        solution.matchingResultPassenger = new double[passengerClassCount][driverClassCount];
+        for(int i = 0; i < driverClassCount; i++) {
+            for(int j = 0; j < passengerClassCount; j++) {
+                solution.matchingRateDriver[i][j] = Prob_i_to_j(driverCount, passengerCount, i, j, 0);
+                solution.matchingResultDriver[i][j] = driverCount[i] * solution.matchingRateDriver[i][j];
+                solution.matchingRateSumDriver[i] += solution.matchingRateDriver[i][j];
             }
 
         }
-        for(int j = 0; j < passenger_class_count; j++) {
-            for(int i = 0; i < driver_class_count; i++) {
-                solution.matching_rate_passenger[j][i] = Prob_i_to_j(driver_count, passenger_count, i, j, 1);
-                solution.matching_result_passenger[j][i] = passenger_count[j] * solution.matching_rate_passenger[j][i];
-                solution.matching_rate_sum_passenger[j] += solution.matching_rate_passenger[j][i];
+        for(int j = 0; j < passengerClassCount; j++) {
+            for(int i = 0; i < driverClassCount; i++) {
+                solution.matchingRatePassenger[j][i] = Prob_i_to_j(driverCount, passengerCount, i, j, 1);
+                solution.matchingResultPassenger[j][i] = passengerCount[j] * solution.matchingRatePassenger[j][i];
+                solution.matchingRateSumPassenger[j] += solution.matchingRatePassenger[j][i];
             }
         }
     }
@@ -281,16 +282,16 @@ public class MatchingProcess {
         double down =  c;
 
         if(flag == 0) {
-            up = A * matching_matrix[i][j] * N_j_p[j];
+            up = A * matchingMatrix[i][j] * N_j_p[j];
         }else {
-            up = A * matching_matrix[i][j] * N_i_d[i];
+            up = A * matchingMatrix[i][j] * N_i_d[i];
         }
 
-        for(int k = 0; k < driver_class_count; k++) {
-            down += (a * matching_matrix[k][j] * N_i_d[k]);
+        for(int k = 0; k < driverClassCount; k++) {
+            down += (a * matchingMatrix[k][j] * N_i_d[k]);
         }
-        for(int k = 0; k < passenger_class_count; k++) {
-            down += (b * matching_matrix[i][k] * N_j_p[k]);
+        for(int k = 0; k < passengerClassCount; k++) {
+            down += (b * matchingMatrix[i][k] * N_j_p[k]);
         }
         return up / down;
     }
@@ -299,23 +300,23 @@ public class MatchingProcess {
         double up = 0;
         double down = c;
         if (flag == 1 && i == j) {
-            for (int k = 0; k < driver_class_count; k++) {
-                up += (a * matching_matrix[k][j] * N_i_d[k]);
+            for (int k = 0; k < driverClassCount; k++) {
+                up += (a * matchingMatrix[k][j] * N_i_d[k]);
             }
-            for (int k = 0; k < passenger_class_count; k++) {
-                up += (A * b * matching_matrix[i][k] * N_j_p[k]);
+            for (int k = 0; k < passengerClassCount; k++) {
+                up += (A * b * matchingMatrix[i][k] * N_j_p[k]);
             }
-            up -= (A * b * matching_matrix[i][i] * N_j_p[i]);
+            up -= (A * b * matchingMatrix[i][i] * N_j_p[i]);
             up += c;
         }else {
-            up += (-A * a * matching_matrix[i][j] * N_j_p[j]);
+            up += (-A * a * matchingMatrix[i][j] * N_j_p[j]);
         }
 
-        for(int k = 0; k < driver_class_count; k++) {
-            down += (a * matching_matrix[k][j] * N_i_d[k]);
+        for(int k = 0; k < driverClassCount; k++) {
+            down += (a * matchingMatrix[k][j] * N_i_d[k]);
         }
-        for(int k = 0; k < passenger_class_count; k++) {
-            down += (b * matching_matrix[i][k] * N_j_p[k]);
+        for(int k = 0; k < passengerClassCount; k++) {
+            down += (b * matchingMatrix[i][k] * N_j_p[k]);
         }
         return up / (down * down);
     }
@@ -372,24 +373,24 @@ public class MatchingProcess {
      */
     public void printSolution() {
         System.out.println("匹配结果展示如下:");
-        for(int i = 0; i < driver_class_count; i++) {
-            for (int j = 0; j < passenger_class_count; j++) {
-                System.out.print(solution.matching_result_driver[i][j] + "   \t");
+        for(int i = 0; i < driverClassCount; i++) {
+            for (int j = 0; j < passengerClassCount; j++) {
+                System.out.print(solution.matchingResultDriver[i][j] + "   \t");
             }
             System.out.println();
         }
         System.out.print("\n司机对应类别及其匹配率为:");
-        printAffordRate(driver_afford_rate);
-        printPeopleCount(driver_count);
-        printMatchingResult(solution.matching_result_driver);
-        printMatchingRate(solution.matching_rate_sum_driver);
+        printAffordRate(driverAffordRate);
+        printPeopleCount(driverCount);
+        printMatchingResult(solution.matchingResultDriver);
+        printMatchingRate(solution.matchingRateSumDriver);
         System.out.println();
 
         System.out.print("\n乘客对应类别及其匹配率为:");
-        printAffordRate(passenger_afford_rate);
-        printPeopleCount(passenger_count);
-        printMatchingResult(solution.matching_result_passenger);
-        printMatchingRate(solution.matching_rate_sum_passenger);
+        printAffordRate(passengerAffordRate);
+        printPeopleCount(passengerCount);
+        printMatchingResult(solution.matchingResultPassenger);
+        printMatchingRate(solution.matchingRateSumPassenger);
     }
     public static void main(String[] args) throws Exception{
         //设置输入相关参数
@@ -409,10 +410,10 @@ public class MatchingProcess {
                 sample.driver_count, sample.passenger_count);
         test.matching();
         test.printSolution();
-        System.out.println(test.solution.matching_sum[0]);
+        System.out.println(test.solution.matchingSum[0]);
         System.out.println();
 
-        SUEInDay.printMatrix(test.matching_matrix);
+        SUEInDay.printMatrix(test.matchingMatrix);
         /*
         for(int i = 0; i < 400; i++) {
             sample.driver_count[k] = i;

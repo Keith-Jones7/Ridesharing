@@ -1,52 +1,49 @@
 package userEquilibrium;
 
+import userEquilibrium.common.Param;
+
 public class SUE {
-    static double precision = 1e-4;
-    static int maxCount = 3000;
-    static double theta = 0.1;
-    static int M = 4;//出行方式类别 0:bus 1:solo_drive 2:rs_driver 3: rs_passenger
-    static double vt = 40;
 
     double Nt;
 
     int W;      //出行者类别
-    double[] driver_afford_rate;
-    double[] passenger_afford_rate;
-    double[] size_rate;
+    double[] driverAffordRate;
+    double[] passengerAffordRate;
+    double[] sizeRate;
 
     double[][] cost;
-    double[][] NA;
-    double[][] NR;
-    double[][] Prob;
-    double[][] Prob_solve;
+    double[][] na;
+    double[][] nr;
+    double[][] prob;
+    double[][] probSolve;
     double N0; // 道路车辆总数
-    double N_matching_sum; // 总匹配成功数
-    double sum_cost; // 总出行成本
-    double[][][] delta_C; // 成本关于人数的雅克比矩阵
+    double nMatchingSum; // 总匹配成功数
+    double sumCost; // 总出行成本
+    double[][][] deltaC; // 成本关于人数的雅克比矩阵
     MatchingProcess matching;
 
     public SUE(int W, double Nt, double[] size_rate,
-               double[] driver_afford_rate, double[] passenger_afford_rate) {
+               double[] driverAffordRate, double[] passengerAffordRate) {
         this.Nt = Nt;
         this.W = W;
-        this.size_rate = size_rate;
-        this.driver_afford_rate = driver_afford_rate;
-        this.passenger_afford_rate = passenger_afford_rate;
+        this.sizeRate = size_rate;
+        this.driverAffordRate = driverAffordRate;
+        this.passengerAffordRate = passengerAffordRate;
 
-        cost = new double[W][M];
-        NA = new double[W][M];
-        NR = new double[W][M];
-        Prob = new double[W][M];
-        Prob_solve = new double[W][M];
-        delta_C = new double[W][4][4];
+        cost = new double[W][Param.M];
+        na = new double[W][Param.M];
+        nr = new double[W][Param.M];
+        prob = new double[W][Param.M];
+        probSolve = new double[W][Param.M];
+        deltaC = new double[W][4][4];
         for(int i = 0; i < W; i++) {
-            for(int j = 0; j < M; j++) {
-                Prob_solve[i][j] = 0;
+            for(int j = 0; j < Param.M; j++) {
+                probSolve[i][j] = 0;
             }
         }
         for(int i = 0; i < W; i++) {
-            for (int j = 0; j < M; j++) {
-                NA[i][j] = size_rate[i] * Prob_solve[i][j] * Nt;
+            for (int j = 0; j < Param.M; j++) {
+                na[i][j] = size_rate[i] * probSolve[i][j] * Nt;
             }
         }
 
@@ -73,37 +70,105 @@ public class SUE {
      */
     public void MSA() {
         int count = 1;
-        while (Norm(Prob, Prob_solve) > precision && count < maxCount) {
+        while (Norm(prob, probSolve) > Param.precision && count < Param.maxCount) {
             for(int i = 0; i < W; i++) {
-                for(int j = 0; j < M; j++) {
-                    Prob_solve[i][j] += ((Prob[i][j] - Prob_solve[i][j]) / count);
-                    NA[i][j] = size_rate[i] * Prob_solve[i][j] * Nt;
+                for(int j = 0; j < Param.M; j++) {
+                    probSolve[i][j] += ((prob[i][j] - probSolve[i][j]) / count);
+                    na[i][j] = sizeRate[i] * probSolve[i][j] * Nt;
                 }
             }
             updateCost();
             updateProb();
+//            updateRate(count);
             count++;
-            System.out.println("期望比例");
-            printMatrix(Prob_solve);
-            System.out.println("实际比例");
-            printMatrix(Prob);
+//            System.out.println("期望比例");
+//            printMatrix(probSolve);
+//            System.out.println("实际比例");
+//            printMatrix(prob);
+//            System.out.println("分摊比例");
+//            printArray(driverAffordRate);
+//            printArray(passengerAffordRate);
             System.out.println("第"+ count + "次迭代");
         }
     }
 
+    /**
+     * 更新共乘成本意愿分摊比例
+     */
+    public void updateRate(int count) {
+        double[] optDriverAffordRate = new double[W];
+        double[] optPassengerAffordRate = new double[W];
+        double[] driverCount = new double[W];
+        double[] passengerCount = new double[W];
+        for(int i = 0; i < W; i++) {
+            driverCount[i] = na[i][2];
+            passengerCount[i] = na[i][3];
+        }
+        for (int i = 0; i < W; i++) {
+            double driverRate = driverAffordRate[i];
+            double tempDriverRate = 0;
+            double tempDriverMinCost = Double.MAX_VALUE;
+            while (tempDriverRate < 1) {
+                tempDriverRate += 0.01;
+                driverAffordRate[i] = tempDriverRate;
+                MatchingProcess match = new MatchingProcess(W, W,
+                        driverAffordRate, passengerAffordRate,
+                        driverCount, passengerCount);
+                match.matching();
+                Cost calCost = new Cost(Param.vt);
+                double cost = calCost.calCost(driverAffordRate, passengerAffordRate,
+                        match.solution.matchingRateDriver[i], match.solution.matchingRatePassenger[i],
+                        match.solution.matchingRateSumDriver[i], match.solution.matchingRateSumPassenger[i],
+                        this.nr, i)[2];
+                if (cost < tempDriverMinCost) {
+                    tempDriverMinCost = cost;
+                    optDriverAffordRate[i] = tempDriverRate;
+                }
+            }
+            driverAffordRate[i] = driverRate;
+
+            double passengerRate = passengerAffordRate[i];
+            double tempPassengerRate = 0;
+            double tempPassengerMinCost = Double.MAX_VALUE;
+            while (tempPassengerRate < 1) {
+                tempPassengerRate += 0.01;
+                passengerAffordRate[i] = tempPassengerRate;
+                MatchingProcess match = new MatchingProcess(W, W,
+                        driverAffordRate, passengerAffordRate,
+                        driverCount, passengerCount);
+                match.matching();
+                Cost calCost = new Cost(Param.vt);
+                double cost = calCost.calCost(driverAffordRate, passengerAffordRate,
+                        match.solution.matchingRateDriver[i], match.solution.matchingRatePassenger[i],
+                        match.solution.matchingRateSumDriver[i], match.solution.matchingRateSumPassenger[i],
+                        this.nr, i)[3];
+                if (cost < tempPassengerMinCost) {
+                    tempPassengerMinCost = cost;
+                    optPassengerAffordRate[i] = tempPassengerRate;
+                }
+            }
+            passengerAffordRate[i] = passengerRate;
+        }
+        for (int i = 0; i < W; i++) {
+            driverAffordRate[i] += (optDriverAffordRate[i] - driverAffordRate[i]) / count;
+            passengerAffordRate[i] += (optPassengerAffordRate[i] - passengerAffordRate[i]) / count;
+        }
+        printArray(optDriverAffordRate);
+        printArray(optPassengerAffordRate);
+    }
     /**
      * 根据最新的成本公式更新期望比例
      */
     public void updateProb() {
         double[] cost_sum = new double[W];
         for(int i = 0; i < W; i++) {
-            for(int j = 0; j < M; j++) {
-                cost_sum[i] += Math.exp(- SUE.theta * cost[i][j]);
+            for(int j = 0; j < Param.M; j++) {
+                cost_sum[i] += Math.exp(- Param.theta * cost[i][j]);
             }
         }
         for(int i = 0; i < W; i++) {
-            for(int j = 0; j < M; j++) {
-                Prob[i][j] = Math.exp(- SUE.theta * cost[i][j]) / cost_sum[i];
+            for(int j = 0; j < Param.M; j++) {
+                prob[i][j] = Math.exp(- Param.theta * cost[i][j]) / cost_sum[i];
             }
         }
     }
@@ -112,31 +177,31 @@ public class SUE {
      * 根据最新的实际比例更新期望成本
      */
     public void updateCost(){
-        double[] driver_count = new double[W];
-        double[] passenger_count = new double[W];
-        sum_cost = 0;
+        double[] driverCount = new double[W];
+        double[] passengerCount = new double[W];
+        sumCost = 0;
         for(int i = 0; i < W; i++) {
-            driver_count[i] = NA[i][2];
-            passenger_count[i] = NA[i][3];
+            driverCount[i] = na[i][2];
+            passengerCount[i] = na[i][3];
         }
-        Cost cal_cost = new Cost(vt);
+        Cost calCost = new Cost(Param.vt);
         if(matching == null) {
             matching = new MatchingProcess(W, W,
-                    driver_afford_rate, passenger_afford_rate,
-                    driver_count, passenger_count);
+                    driverAffordRate, passengerAffordRate,
+                    driverCount, passengerCount);
         }else {
-            matching.setParam(driver_count, passenger_count);
+            matching.setParam(driverCount, passengerCount);
         }
         matching.matching();
         for(int i = 0; i < W; i++) {
-            cost[i] = cal_cost.calCost(driver_afford_rate, passenger_afford_rate,
-                    matching.solution.matching_rate_driver[i], matching.solution.matching_rate_passenger[i],
-                    matching.solution.matching_rate_sum_driver[i], matching.solution.matching_rate_sum_passenger[i],
-                    this.NR, i);
+            cost[i] = calCost.calCost(driverAffordRate, passengerAffordRate,
+                    matching.solution.matchingRateDriver[i], matching.solution.matchingRatePassenger[i],
+                    matching.solution.matchingRateSumDriver[i], matching.solution.matchingRateSumPassenger[i],
+                    this.nr, i);
         }
         for (int i = 0; i < cost.length; i++) {
             for (int j = 0; j < cost[0].length; j++) {
-                sum_cost += (Nt * Prob_solve[i][j] * cost[i][j]);
+                sumCost += (Nt * probSolve[i][j] * cost[i][j]);
             }
         }
         //  printMatrix(matching.solution.matching_rate_driver);
@@ -148,12 +213,11 @@ public class SUE {
      */
     public void updateNR() {
         for(int i = 0; i < W; i++) {
-            NR[i][2] = matching.solution.matching_rate_sum_driver[i] * NA[i][2];
-            NR[i][3] = matching.solution.matching_rate_sum_passenger[i] * NA[i][3];
-            NR[i][0] = NA[i][0] + NA[i][3] - NR[i][3];
-            NR[i][1] = NA[i][1] + NA[i][2] - NR[i][2];
+            nr[i][2] = matching.solution.matchingRateSumDriver[i] * na[i][2];
+            nr[i][3] = matching.solution.matchingRateSumPassenger[i] * na[i][3];
+            nr[i][0] = na[i][0] + na[i][3] - nr[i][3];
+            nr[i][1] = na[i][1] + na[i][2] - nr[i][2];
         }
-
     }
 
     /**
@@ -162,10 +226,10 @@ public class SUE {
      */
     public void calNv() {
         this.N0 = 0;
-        this.N_matching_sum = 0;
+        this.nMatchingSum = 0;
         for (int i = 0; i < W; i++) {
-            N0 += (NR[i][1] + NR[i][2]);
-            N_matching_sum += NR[i][2];
+            N0 += (nr[i][1] + nr[i][2]);
+            nMatchingSum += nr[i][2];
         }
     }
 
@@ -213,24 +277,24 @@ public class SUE {
     }
 }
 class Cost {
-    static final double ALPHA = 30;         //行驶过程的VoT
-    static final double LB = 36;            //公共交通里程
+    static final double[] ALPHA = {30, 30, 20, 30, 40, 50, 60, 70, 80, 90};         //行驶过程的VoT
+    static final double LB = 30;            //公共交通里程
     static final double VB = 30;            //公共交通平均速度
     static final double FREQ = 10;          //公共交通发车频率
-    static final double PB = 10;            //公共交通票价
-    static final double GAMMA = 5;        //公交车拥挤成本系数
+    static final double PB = 2;            //公共交通票价
+    static final double GAMMA = 2;        //公交车拥挤成本系数
     static final double ROU = 0.35;          //公交车拥挤惩罚系数
     static final double B = 30;             //公交车最大容量
 
     static final double LS = 36;            //独驾里程
     static final double LD = 2;             //平均绕行距离
     static final double VS = 50;            //小汽车零流速度
-    static final double LAMBDA = 0.6;       //每公里燃料费
-    static final double CF = 0.1;           //每公里车辆折旧成本
+    static final double LAMBDA = 0.7;       //每公里燃料费
+    static final double CF = 1;           //每公里车辆折旧成本
 
     static final double ALPHA1 = 0.15;      //BPR系数1
     static final double ALPHA2 = 4;         //BPR系数2
-    static final double Capacity = 100;     //道路车辆容量
+    static final double Capacity = 600;     //道路车辆容量
     static final double DISCOMFORT_D = 2;   //司机的舒适度成本
     static final double DISCOMFORT_P = 3;   //乘客的舒适度成本
     static final double THETA_D = 2;        //司机参与匹配的固定成本
@@ -244,18 +308,18 @@ class Cost {
     /**
      * 计算成本
      *
-     * @param driver_afford_rate    司机的承担比例
-     * @param passenger_afford_rate 乘客的承担比例
-     * @param matching_rate_driver  司机的预期匹配率
-     * @param matching_rate_passenger   乘客的预期匹配率
-     * @param matching_rate_sum_driver 司机的累计匹配率
-     * @param matching_rate_sum_passenger 乘客的累计匹配率
+     * @param driverAffordRate    司机的承担比例
+     * @param passengerAffordRate 乘客的承担比例
+     * @param matchingRateDriver  司机的预期匹配率
+     * @param matchingRatePassenger   乘客的预期匹配率
+     * @param matchingRateSumDriver 司机的累计匹配率
+     * @param matchingRateSumPassenger 乘客的累计匹配率
      * @param index 出行者的类别
      * @return 返回同一类出行者选择该种出行方式的成本
      */
-    public double[] calCost(double[] driver_afford_rate, double[] passenger_afford_rate,
-                            double[] matching_rate_driver, double[] matching_rate_passenger,
-                            double matching_rate_sum_driver, double matching_rate_sum_passenger,
+    public double[] calCost(double[] driverAffordRate, double[] passengerAffordRate,
+                            double[] matchingRateDriver, double[] matchingRatePassenger,
+                            double matchingRateSumDriver, double matchingRateSumPassenger,
                             double[][] NR, int index) {
         double nb = 0, nc = 0;
         for (double[] num : NR) {
@@ -265,23 +329,25 @@ class Cost {
         }
 
         vt = VS / (1 + ALPHA1 * Math.pow(nc / Capacity, ALPHA2));
-        double cb = ALPHA * (LB / VB + 1 / (2 * FREQ)) + PB + GAMMA * (LB / VB) * (1 + ROU * nb / B);
-        double cs = ALPHA * (LS / vt)  + LAMBDA * LS + CF * LS;
+        double cb = ALPHA[index] * (LB / VB + 1 / (2 * FREQ)) + PB + GAMMA * (LB / VB) * (1 + ROU * nb / B);
+        double cs = ALPHA[index] * (LS / vt)  + LAMBDA * LS + CF * LS;
         double cd = 0;
-        for(int j = 0; j < passenger_afford_rate.length; j++) {
-            cd += matching_rate_driver[j] *
-                    ((driver_afford_rate[index] / (driver_afford_rate[index] + passenger_afford_rate[j])) * LAMBDA * (LS + LD) +
-                            ALPHA * (LS + LD) / vt + DISCOMFORT_D);
+        for(int j = 0; j < passengerAffordRate.length; j++) {
+            cd += matchingRateDriver[j] *
+                    ((driverAffordRate[index] / (driverAffordRate[index] + passengerAffordRate[j])) * LAMBDA * (LS + LD) +
+                            ALPHA[index] * (LS + LD) / vt + DISCOMFORT_D);
         }
         double cp = 0;
-        for(int i = 0; i < driver_afford_rate.length; i++) {
-            cp += matching_rate_passenger[i] *
-                    ((passenger_afford_rate[index] / (passenger_afford_rate[index] + driver_afford_rate[i])) * LAMBDA * (LS + LD) +
-                            ALPHA * (LS + LD) / vt + DISCOMFORT_P);
+        for(int i = 0; i < driverAffordRate.length; i++) {
+            cp += matchingRatePassenger[i] *
+                    ((passengerAffordRate[index] / (passengerAffordRate[index] + driverAffordRate[i])) * LAMBDA * (LS + LD) +
+                            ALPHA[index] * (LS + LD) / vt + DISCOMFORT_P);
         }
+        double cdd = cd + (1 - matchingRateSumDriver) * cs + THETA_D;
+        double cpp = cp + (1 - matchingRateSumPassenger) * cb + THETA_P;
         return new double[]{cb, cs,
-                cd + (1 - matching_rate_sum_driver) * cs + THETA_D,
-                cp + (1 - matching_rate_sum_passenger) * cb + THETA_P};
+                cd + (1 - matchingRateSumDriver) * cs + THETA_D,
+                cp + (1 - matchingRateSumPassenger) * cb + THETA_P};
 
     }
 }
