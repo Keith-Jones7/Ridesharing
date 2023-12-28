@@ -69,9 +69,7 @@ public class InDayEvolution {
         double[] _driver_afford_rate = {0.2, 0.4, 0.5};
         double[] _passenger_afford_rate = {0.6, 0.7, 0.9};
         double[] _afford_size_rate = {0.2, 0.2, 0.6};
-
-
-
+        
 
     }
 
