@@ -71,7 +71,7 @@ public class SUE {
         while (Norm(prob, probSolve) > Param.precision && count < Param.maxCount) {
             for(int i = 0; i < W; i++) {
                 for(int j = 0; j < Param.M; j++) {
-                    probSolve[i][j] += ((prob[i][j] - probSolve[i][j]) / count);
+                    probSolve[i][j] += ((prob[i][j] - probSolve[i][j]) / 200);
                     na[i][j] = sizeRate[i] * probSolve[i][j] * Nt;
                 }
             }
@@ -105,32 +105,7 @@ public class SUE {
             passengerCount[i] = na[i][3];
         }
         for (int i = 0; i < W; i++) {
-            double driverRate = driverAffordRate[i];
-            double tempDriverRate = 0;
-            double tempDriverMinCost = Double.MAX_VALUE;
-            double[] tempCost = new double[100];
-            int index = 0;
-            double[] tempRate = new double[100];
-            while (tempDriverRate < 1) {
-                tempDriverRate += 0.01;
-                driverAffordRate[i] = tempDriverRate;
-                MatchingProcess match = new MatchingProcess(W, W,
-                        driverAffordRate, passengerAffordRate,
-                        driverCount, passengerCount);
-                match.matching();
-                Cost calCost = new Cost(Param.vt);
-                double cost = calCost.calCost(driverAffordRate, passengerAffordRate,
-                        match.matchSolution.matchingRateDriver[i], match.matchSolution.matchingRatePassenger[i],
-                        match.matchSolution.matchingRateSumDriver[i], match.matchSolution.matchingRateSumPassenger[i],
-                        this.nr, i)[2];
-                tempCost[index] = cost;
-                tempRate[index++] = tempDriverRate;
-                if (cost < tempDriverMinCost) {
-                    tempDriverMinCost = cost;
-                    optDriverAffordRate[i] = tempDriverRate;
-                }
-            }
-            driverAffordRate[i] = driverRate;
+
 
             double passengerRate = passengerAffordRate[i];
             double tempPassengerRate = 0;
@@ -153,6 +128,28 @@ public class SUE {
                 }
             }
             passengerAffordRate[i] = passengerRate;
+
+            double driverRate = driverAffordRate[i];
+            double tempDriverRate = 0;
+            double tempDriverMinCost = Double.MAX_VALUE;
+            while (tempDriverRate < 1) {
+                tempDriverRate += 0.01;
+                driverAffordRate[i] = tempDriverRate;
+                MatchingProcess match = new MatchingProcess(W, W,
+                        driverAffordRate, passengerAffordRate,
+                        driverCount, passengerCount);
+                match.matching();
+                Cost calCost = new Cost(Param.vt);
+                double cost = calCost.calCost(driverAffordRate, passengerAffordRate,
+                        match.matchSolution.matchingRateDriver[i], match.matchSolution.matchingRatePassenger[i],
+                        match.matchSolution.matchingRateSumDriver[i], match.matchSolution.matchingRateSumPassenger[i],
+                        this.nr, i)[2];
+                if (cost < tempDriverMinCost) {
+                    tempDriverMinCost = cost;
+                    optDriverAffordRate[i] = tempDriverRate;
+                }
+            }
+            driverAffordRate[i] = driverRate;
         }
         for (int i = 0; i < W; i++) {
             driverAffordRate[i] += (optDriverAffordRate[i] - driverAffordRate[i]) / count;
@@ -277,7 +274,7 @@ public class SUE {
     }
 }
 class Cost {
-    static final double[] ALPHA = {55, 57, 60, 15, 16, 17, 18, 19, 20, 21};         //行驶过程的VoT
+    static final double[] ALPHA = {60, 80, 100, 15, 16, 17, 18, 19, 20, 21};         //行驶过程的VoT
     double vt;                              //路网车辆平均行驶速度（可变）
 
     public Cost(double vt) {
