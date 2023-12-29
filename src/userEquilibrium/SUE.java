@@ -108,6 +108,9 @@ public class SUE {
             double driverRate = driverAffordRate[i];
             double tempDriverRate = 0;
             double tempDriverMinCost = Double.MAX_VALUE;
+            double[] tempCost = new double[100];
+            int index = 0;
+            double[] tempRate = new double[100];
             while (tempDriverRate < 1) {
                 tempDriverRate += 0.01;
                 driverAffordRate[i] = tempDriverRate;
@@ -120,6 +123,8 @@ public class SUE {
                         match.matchSolution.matchingRateDriver[i], match.matchSolution.matchingRatePassenger[i],
                         match.matchSolution.matchingRateSumDriver[i], match.matchSolution.matchingRateSumPassenger[i],
                         this.nr, i)[2];
+                tempCost[index] = cost;
+                tempRate[index++] = tempDriverRate;
                 if (cost < tempDriverMinCost) {
                     tempDriverMinCost = cost;
                     optDriverAffordRate[i] = tempDriverRate;
@@ -153,8 +158,6 @@ public class SUE {
             driverAffordRate[i] += (optDriverAffordRate[i] - driverAffordRate[i]) / count;
             passengerAffordRate[i] += (optPassengerAffordRate[i] - passengerAffordRate[i]) / count;
         }
-        printArray(optDriverAffordRate);
-        printArray(optPassengerAffordRate);
     }
     /**
      * 根据最新的成本公式更新期望比例
@@ -270,10 +273,11 @@ public class SUE {
         for(double arr : array) {
             System.out.print(String.format("%.2f", arr) + "  \t");
         }
+        System.out.println();
     }
 }
 class Cost {
-    static final double[] ALPHA = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};         //行驶过程的VoT
+    static final double[] ALPHA = {55, 57, 60, 15, 16, 17, 18, 19, 20, 21};         //行驶过程的VoT
     double vt;                              //路网车辆平均行驶速度（可变）
 
     public Cost(double vt) {

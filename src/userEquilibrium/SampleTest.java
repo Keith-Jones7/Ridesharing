@@ -1,4 +1,6 @@
 package userEquilibrium;
+import userEquilibrium.common.Param;
+
 import java.io.*;
 public class SampleTest {
     int W;
@@ -18,13 +20,16 @@ public class SampleTest {
         this.sizeRate = sizeRate;
     }
     public void generateDefault() {
-        W = 10;
+        W = 3;
         Nt = 1500;
-        driverAffordRate = new double[]{1, 1 ,1, 1, 1, 1, 1, 1, 1, 1};
-        passengerAffordRate = new double[]{1, 1 ,1, 1, 1, 1, 1, 1, 1, 1};
-        sizeRate = new double[]{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+//        driverAffordRate = new double[]{0.1, 0.5 ,0.3, 0.4, 0.4, 0.1, 0.5 ,0.3, 0.4, 0.4};
+//        passengerAffordRate = new double[]{0.1, 0.5 ,0.3, 0.4, 0.4, 0.1, 0.5 ,0.3, 0.4, 0.4};
+//        sizeRate = new double[]{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+        driverAffordRate = new double[]{0.2, 0.5 ,0.3};
+        passengerAffordRate = new double[]{0.6, 0.5 ,0.3};
+        sizeRate = new double[]{1.0/3, 1.0/3, 1.0/3};
         sampleSUE = new SUE(W, Nt, sizeRate, driverAffordRate, passengerAffordRate);
-        sampleSUE.solveSUE();
+//        sampleSUE.solveSUE();
     }
     public void generateSample2() {
         W = 3;
@@ -70,25 +75,26 @@ public class SampleTest {
         write(file_name, matchingRatePassenger, costPassenger);
     }
     public static void main(String[] args) {
-        SampleTest test2 = new SampleTest();
-        test2.generateSample3();
+        Param.isFree = true;
+//        SampleTest test2 = new SampleTest();
+//        test2.generateSample3();
 
-//        SampleTest test = new SampleTest();
-//        test.generateDefault();
-//        SUE testSue = test.sampleSUE;
-//        testSue.solveSUE();
-//        int i = 1;
-//        System.out.println("共乘司机匹配率:" + testSue.matching.matchSolution.matchingRateSumDriver[i]);
-//        System.out.println("共乘乘客匹配率:" + testSue.matching.matchSolution.matchingRateSumPassenger[i]);
-//        System.out.println("公共交通出行成本：" + testSue.cost[i][0]);
-//        System.out.println("独自驾驶出行成本：" + testSue.cost[i][1]);
-//        System.out.println("共乘司机出行成本：" + testSue.cost[i][2]);
-//        System.out.println("共乘乘客出行成本：" + testSue.cost[i][3]);
-//        System.out.println("实际选择公交人数：" + (testSue.nr[0][0] + testSue.nr[1][0] + testSue.nr[2][0]));
-//        System.out.println("实际选择独驾人数：" + (testSue.nr[0][1] + testSue.nr[1][1] + testSue.nr[2][1]));
-//        System.out.println("总匹配成功数：" + testSue.nMatchingSum);
-//        System.out.println("道路车辆总数:  " + testSue.N0);
-//        System.out.println("居民总出行成本：" + testSue.sumCost);
+        SampleTest test = new SampleTest();
+        test.generateDefault();
+        SUE testSue = test.sampleSUE;
+        testSue.solveSUE();
+        int i = 1;
+        System.out.println("共乘司机匹配率:" + testSue.matching.matchSolution.matchingRateSumDriver[i]);
+        System.out.println("共乘乘客匹配率:" + testSue.matching.matchSolution.matchingRateSumPassenger[i]);
+        System.out.println("公共交通出行成本：" + testSue.cost[i][0]);
+        System.out.println("独自驾驶出行成本：" + testSue.cost[i][1]);
+        System.out.println("共乘司机出行成本：" + testSue.cost[i][2]);
+        System.out.println("共乘乘客出行成本：" + testSue.cost[i][3]);
+        System.out.println("实际选择公交人数：" + (testSue.nr[0][0] + testSue.nr[1][0] + testSue.nr[2][0]));
+        System.out.println("实际选择独驾人数：" + (testSue.nr[0][1] + testSue.nr[1][1] + testSue.nr[2][1]));
+        System.out.println("总匹配成功数：" + testSue.nMatchingSum);
+        System.out.println("道路车辆总数:  " + testSue.nc);
+        System.out.println("居民总出行成本：" + testSue.sumCost);
 
 
     }
