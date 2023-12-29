@@ -83,7 +83,7 @@ public class SampleTest {
         test.generateDefault();
         SUE testSue = test.sampleSUE;
         testSue.solveSUE();
-        int i = 1;
+        int i = 0;
         System.out.println("共乘司机匹配率:" + testSue.matching.matchSolution.matchingRateSumDriver[i]);
         System.out.println("共乘乘客匹配率:" + testSue.matching.matchSolution.matchingRateSumPassenger[i]);
         System.out.println("公共交通出行成本：" + testSue.cost[i][0]);
