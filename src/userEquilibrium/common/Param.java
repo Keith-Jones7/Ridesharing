@@ -23,7 +23,7 @@ public class Param {
     public static final double THETA_P = 0;        //乘客参与匹配的固定成本
 
     public static double precision = 1e-4;
-    public static int maxCount = 10000;
+    public static int maxCount = 100000;
     public static double theta = 0.05;
     public static int M = 4;//出行方式类别 0:bus 1:solo_drive 2:rs_driver 3: rs_passenger
     public static double vt = 40;

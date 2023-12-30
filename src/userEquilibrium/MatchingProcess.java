@@ -149,9 +149,9 @@ public class MatchingProcess {
 //            up = A * matchingMatrix[i][j] * N_i_d[i];
 //        }
         if(flag == 0) {
-            up = A * (Math.pow(driverAffordRate[i], 0.5) + Math.pow(passengerAffordRate[i], 0.5)) / 2 * N_j_p[j];
+            up = A * (Math.pow(driverAffordRate[i], 0.5) + Math.pow(passengerAffordRate[i], 0.5)) * N_j_p[j];
         }else {
-            up = A * (Math.pow(driverAffordRate[i], 0.5) + Math.pow(passengerAffordRate[i], 0.5)) / 2 * N_i_d[i];
+            up = A * (Math.pow(driverAffordRate[i], 0.5) + Math.pow(passengerAffordRate[i], 0.5)) * N_i_d[i];
         }
         for(int k = 0; k < driverClassCount; k++) {
             down += (a * matchingMatrix[k][j] * N_i_d[k]);
