@@ -6,14 +6,14 @@ import java.util.Random;
 public class SampleGenerator {
     public double[] driverCount;
     public double[] passengerCount;
-    public double[] driver_afford_rate;
-    public double[] passenger_afford_rate;
+    public double[] driverAffordRate;
+    public double[] passengerAffordRate;
     public static int maxCount = 100;
     public SampleGenerator(int driverClassCount, int passengerClassCount) {
         this.driverCount = new double[driverClassCount];
         this.passengerCount = new double[passengerClassCount];
-        this.driver_afford_rate = new double[]{0.4};
-        this.passenger_afford_rate = new double[]{0.6};
+        this.driverAffordRate = new double[]{0.4};
+        this.passengerAffordRate = new double[]{0.6};
     }
 
     /**
@@ -47,7 +47,7 @@ public class SampleGenerator {
     }
     public void printSample() {
         System.out.println("司机对应类别及其数为:");
-        for(double rate : driver_afford_rate) {
+        for(double rate : driverAffordRate) {
             System.out.print(rate + "   \t");
         }
         System.out.println();
@@ -56,7 +56,7 @@ public class SampleGenerator {
         }
         System.out.println();
         System.out.println("乘客对应类别及其数为:");
-        for(double rate : passenger_afford_rate) {
+        for(double rate : passengerAffordRate) {
             System.out.print(rate + "   \t");
         }
         System.out.println();

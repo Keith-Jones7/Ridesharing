@@ -18,7 +18,6 @@ public class MatchingProcess {
     double[][] matchingMatrix;
     double[] driverAffordRate;
     double[] passengerAffordRate;
-    int[] gender;
     double[] driverCount;
     double[] passengerCount;
     matchSolution matchSolution;
@@ -55,41 +54,6 @@ public class MatchingProcess {
         this.passengerCount = passengerCount;
         this.driverAffordRate = driverAffordRate;
         this.passengerAffordRate = passengerAffordRate;
-    }
-
-    /**
-     *
-     * @param driverClassCount        司机种类
-     * @param passengerClassCount     乘客种类
-     * @param driverAffordRate        司机意愿承担比例
-     * @param passengerAffordRate     乘客意愿承担比例
-     * @param gender                    性别标识
-     * @param driverCount              司机各类数量
-     * @param passengerCount           乘客各类数量
-     */
-    public MatchingProcess(int driverClassCount, int passengerClassCount,
-                           double[] driverAffordRate, double[] passengerAffordRate, int[] gender,
-                           double[] driverCount, double[] passengerCount) {
-        matchingMatrix = new double[driverClassCount][passengerClassCount];
-        this.driverClassCount = driverClassCount;
-        this.passengerClassCount = passengerClassCount;
-
-        for(int i = 0; i < driverClassCount; i++) {
-            for(int j = 0; j < passengerClassCount; j++) {
-                if((driverAffordRate[i] + passengerAffordRate[j] >= 1) && (
-                        Math.abs(gender[i] + gender[j]) * (gender[i] * gender[j]) >= 0
-                        )) {
-                    matchingMatrix[i][j] = 1;
-                }else {
-                    matchingMatrix[i][j] = 0;
-                }
-            }
-        }
-        this.driverCount = driverCount;
-        this.passengerCount = passengerCount;
-        this.driverAffordRate = driverAffordRate;
-        this.passengerAffordRate = passengerAffordRate;
-        this.gender = gender;
     }
 
     /**
@@ -162,30 +126,6 @@ public class MatchingProcess {
         return up / down;
     }
 
-    public double PartialProb(double[] N_i_d, double[] N_j_p, int i, int j, int flag) {
-        double up = 0;
-        double down = c;
-        if (flag == 1 && i == j) {
-            for (int k = 0; k < driverClassCount; k++) {
-                up += (a * matchingMatrix[k][j] * N_i_d[k]);
-            }
-            for (int k = 0; k < passengerClassCount; k++) {
-                up += (A * b * matchingMatrix[i][k] * N_j_p[k]);
-            }
-            up -= (A * b * matchingMatrix[i][i] * N_j_p[i]);
-            up += c;
-        }else {
-            up += (-A * a * matchingMatrix[i][j] * N_j_p[j]);
-        }
-
-        for(int k = 0; k < driverClassCount; k++) {
-            down += (a * matchingMatrix[k][j] * N_i_d[k]);
-        }
-        for(int k = 0; k < passengerClassCount; k++) {
-            down += (b * matchingMatrix[i][k] * N_j_p[k]);
-        }
-        return up / (down * down);
-    }
     /**
      * 输出意愿承担比例
      * @param afford_rate 承担比例
@@ -272,7 +212,7 @@ public class MatchingProcess {
         sample.generate(_default);
         int k = 0;
         MatchingProcess test = new MatchingProcess(driver_class_count, passenger_class_count,
-                sample.driver_afford_rate, sample.passenger_afford_rate,
+                sample.driverAffordRate, sample.passengerAffordRate,
                 sample.driverCount, sample.passengerCount);
         test.matching();
         test.printSolution();
