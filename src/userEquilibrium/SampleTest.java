@@ -25,8 +25,8 @@ public class SampleTest {
 //        driverAffordRate = new double[]{0.1, 0.5 ,0.3, 0.4, 0.4, 0.1, 0.5 ,0.3, 0.4, 0.4};
 //        passengerAffordRate = new double[]{0.1, 0.5 ,0.3, 0.4, 0.4, 0.1, 0.5 ,0.3, 0.4, 0.4};
 //        sizeRate = new double[]{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
-        driverAffordRate = new double[]{0.2, 0.5 ,0.3};
-        passengerAffordRate = new double[]{0.6, 0.5 ,0.3};
+        driverAffordRate = new double[]{0.1, 0.5 ,0.1};
+        passengerAffordRate = new double[]{0.1, 0.1 ,0.1};
         sizeRate = new double[]{1.0/3, 1.0/3, 1.0/3};
         sampleSUE = new SUE(W, Nt, sizeRate, driverAffordRate, passengerAffordRate);
 //        sampleSUE.solveSUE();

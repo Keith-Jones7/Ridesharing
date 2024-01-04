@@ -274,7 +274,7 @@ public class SUE {
     }
 }
 class Cost {
-    static final double[] ALPHA = {120, 110, 100, 15, 16, 17, 18, 19, 20, 21};         //行驶过程的VoT
+    static final double[] ALPHA = {30, 50, 60, 15, 16, 17, 18, 19, 20, 21};         //行驶过程的VoT
     double vt;                              //路网车辆平均行驶速度（可变）
 
     public Cost(double vt) {

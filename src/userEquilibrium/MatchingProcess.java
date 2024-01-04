@@ -13,7 +13,7 @@ public class MatchingProcess {
     double A = 1;
     double a = 1;
     double b = 1;
-    double c = 800;
+    double c = 100;
 
     double[][] matchingMatrix;
     double[] driverAffordRate;
@@ -42,12 +42,13 @@ public class MatchingProcess {
 
         for(int i = 0; i < driverClassCount; i++) {
             for(int j = 0; j < passengerClassCount; j++) {
-//                matchingMatrix[i][j] = (Math.pow(driverAffordRate[i], 0.5) + Math.pow(passengerAffordRate[i], 0.5));
-                if((driverAffordRate[i] + passengerAffordRate[j] >= 1)) {
-                    matchingMatrix[i][j] = 1;
-                }else {
-                    matchingMatrix[i][j] = 0;
-                }
+//                matchingMatrix[i][j] = (Math.pow(driverAffordRate[i], 0.5) * Math.pow(passengerAffordRate[i], 0.5));
+//                if((driverAffordRate[i] + passengerAffordRate[j] >= 1)) {
+//                    matchingMatrix[i][j] = 1;
+//                }else {
+//                    matchingMatrix[i][j] = 0;
+//                }
+                matchingMatrix[i][j] = 1;
             }
         }
         this.driverCount = driverCount;
