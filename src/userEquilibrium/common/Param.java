@@ -26,5 +26,5 @@ public class Param {
     public static int maxCount = 100000;
     public static double theta = 0.05;
     public static int M = 4;                        //出行方式类别 0:bus 1:solo_drive 2:rs_driver 3: rs_passenger
-    public static double vt = 40;
+    public static double vt = 45;
 }
