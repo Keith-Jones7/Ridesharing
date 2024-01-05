@@ -42,7 +42,7 @@ public class MatchingProcess {
 
         for (int i = 0; i < driverClassCount; i++) {
             for (int j = 0; j < passengerClassCount; j++) {
-                matchingMatrix[i][j] = (Math.pow(driverAffordRate[i], 0.5) * Math.pow(passengerAffordRate[i], 0.5) / 3);
+                matchingMatrix[i][j] = (Math.pow(driverAffordRate[i], 0.5) * Math.pow(passengerAffordRate[i], 0.5) / 5);
 //                if((driverAffordRate[i] + passengerAffordRate[j] >= 1)) {
 //                    matchingMatrix[i][j] = 1;
 //                }else {

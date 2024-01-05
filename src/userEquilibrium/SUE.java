@@ -119,7 +119,7 @@ public class SUE {
         while (Norm(prob, probSolve) > Param.precision && count < Param.maxCount) {
             for (int i = 0; i < W; i++) {
                 for (int j = 0; j < Param.M; j++) {
-                    probSolve[i][j] += ((prob[i][j] - probSolve[i][j]) / 1000);
+                    probSolve[i][j] += ((prob[i][j] - probSolve[i][j]) / count);
                     na[i][j] = sizeRate[i] * probSolve[i][j] * Nt;
                 }
             }
@@ -206,8 +206,8 @@ public class SUE {
             driverAffordRate[i] = driverRate;
         }
         for (int i = 0; i < W; i++) {
-            driverAffordRate[i] += (optDriverAffordRate[i] - driverAffordRate[i]) / 2500;
-            passengerAffordRate[i] += (optPassengerAffordRate[i] - passengerAffordRate[i]) / 2500;
+            driverAffordRate[i] += (optDriverAffordRate[i] - driverAffordRate[i]) / count;
+            passengerAffordRate[i] += (optPassengerAffordRate[i] - passengerAffordRate[i]) / count;
         }
     }
 
