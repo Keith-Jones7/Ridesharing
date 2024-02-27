@@ -158,11 +158,10 @@ public class SUE {
 
             double passengerRate = passengerAffordRate[i];
             double tempPassengerRate = 0;
-            double coff1 = (1 / (1 - (Param.LAMBDA * Param.LS - Param.ALPHA[i] * Param.LD / Param.vt - Param.DISCOMFORT_D) /
-                    (Param.LAMBDA * (Param.LS + Param.LD))) - 1);
-            double coff2 = (1 / (1 - (Param.ALPHA[i] * (Param.LB / Param.VB + 0.5 / Param.FREQ - (Param.LS + Param.LD) / Param.vt)
-             + Param.PB + Param.GAMMA * (Param.LB / Param.VB) - Param.DISCOMFORT_P) / (Param.LAMBDA * (Param.LS + Param.LD))) - 1);
-
+//            double coff1 = (1 / (1 - (Param.LAMBDA * Param.LS - Param.ALPHA[i] * Param.LD / Param.vt - Param.DISCOMFORT_D) /
+//                    (Param.LAMBDA * (Param.LS + Param.LD))) - 1);
+//            double coff2 = (1 / (1 - (Param.ALPHA[i] * (Param.LB / Param.VB + 0.5 / Param.FREQ - (Param.LS + Param.LD) / Param.vt)
+//             + Param.PB + Param.GAMMA * (Param.LB / Param.VB) - Param.DISCOMFORT_P) / (Param.LAMBDA * (Param.LS + Param.LD))) - 1);
 
             double tempPassengerMinCost = Double.MAX_VALUE;
             while (tempPassengerRate < 1) {
@@ -329,8 +328,8 @@ class Cost {
                     ((passengerAffordRate[index] / (passengerAffordRate[index] + driverAffordRate[i])) * Param.LAMBDA * (Param.LS + Param.LD) +
                             Param.ALPHA[index] * (Param.LS + Param.LD) / vt + Param.DISCOMFORT_P);
         }
-        double cdd = cd + (1 - matchingRateSumDriver) * cs;
-        double cpp = cp + (1 - matchingRateSumPassenger) * cb;
+//        double cdd = cd + (1 - matchingRateSumDriver) * cs;
+//        double cpp = cp + (1 - matchingRateSumPassenger) * cb;
         return new double[]{cb, cs,
                 cd + (1 - matchingRateSumDriver) * cs + Param.THETA_D,
                 cp + (1 - matchingRateSumPassenger) * cb + Param.THETA_P};
