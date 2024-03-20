@@ -8,24 +8,10 @@ public class SampleTest {
 
     public static void main(String[] args) {
         runChapter3Example1();
-//        SampleTest test = new SampleTest();
-//        test.generateDefault();
-//        SUE testSue = test.sampleSUE;
-//        testSue.solveSUE();
-//        int i = 1;
-//        System.out.println("共乘司机匹配率:" + testSue.matching.matchSolution.matchingRateSumDriver[i]);
-//        System.out.println("共乘乘客匹配率:" + testSue.matching.matchSolution.matchingRateSumPassenger[i]);
-//        System.out.println("公共交通出行成本：" + testSue.cost[i][0]);
-//        System.out.println("独自驾驶出行成本：" + testSue.cost[i][1]);
-//        System.out.println("共乘司机出行成本：" + testSue.cost[i][2]);
-//        System.out.println("共乘乘客出行成本：" + testSue.cost[i][3]);
-//        System.out.println("实际选择公交人数：" + (testSue.nr[0][0] + testSue.nr[1][0] + testSue.nr[2][0]));
-//        System.out.println("实际选择独驾人数：" + (testSue.nr[0][1] + testSue.nr[1][1] + testSue.nr[2][1]));
-//        System.out.println("总匹配成功数：" + testSue.nMatchingSum);
-//        System.out.println("道路车辆总数:  " + testSue.nc);
-//        System.out.println("居民总出行成本：" + testSue.sumCost);
-
-
+//        runChapter3Example2();
+//        runChapter3Example3();
+//        runChapter4Example1();
+//        runChapter4Example2();
     }
 
     public static void runChapter3Example1() {
@@ -65,7 +51,24 @@ public class SampleTest {
         saveFormatTable("Chapter3", "Example1", "cost",
                 headers3, costFixedT[2], costT[2], costFixedT[3], costT[3]);
 
+        double nsFixed = sueFixed.nc - sueFixed.nMatchingSum;
+        double ns = sue.nc - sue.nMatchingSum;
+        double nbFixed = sueFixed.Nt - nsFixed - 2 * sueFixed.nMatchingSum;
+        double nb = sue.Nt - ns - 2 * sue.nMatchingSum;
 
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Chapter3/Example1/all.txt"))) {
+            writer.write(String.format("公交总人数\t%.0f\t%.0f", nbFixed, nb));
+            writer.newLine();
+            writer.write(String.format("独驾总人数\t%.0f\t%.0f", nsFixed, ns));
+            writer.newLine();
+            writer.write(String.format("总匹配成功数\t%.0f\t%.0f", sueFixed.nMatchingSum, sue.nMatchingSum));
+            writer.newLine();
+            writer.write(String.format("道路车辆总数\t%.0f\t%.0f", sueFixed.nc, sue.nc));
+            writer.newLine();
+            writer.write(String.format("居民总出行成本\t%.2f\t%.2f", sueFixed.sumCost, sue.sumCost));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void runChapter3Example2() {

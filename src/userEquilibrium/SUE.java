@@ -17,6 +17,7 @@ public class SUE {
     double[][] prob;
     double[][] probSolve;
     double nc; // 道路车辆总数
+
     double nMatchingSum; // 总匹配成功数
     double sumCost; // 总出行成本
     MatchingProcess matching;
@@ -328,8 +329,8 @@ class Cost {
                     ((passengerAffordRate[index] / (passengerAffordRate[index] + driverAffordRate[i])) * Param.LAMBDA * (Param.LS + Param.LD) +
                             Param.ALPHA[index] * (Param.LS + Param.LD) / vt + Param.DISCOMFORT_P);
         }
-        double cdd = cd + (1 - matchingRateSumDriver) * cs;
-        double cpp = cp + (1 - matchingRateSumPassenger) * cb;
+//        double cdd = cd + (1 - matchingRateSumDriver) * cs;
+//        double cpp = cp + (1 - matchingRateSumPassenger) * cb;
         return new double[]{cb, cs,
                 cd + (1 - matchingRateSumDriver) * cs + Param.THETA_D,
                 cp + (1 - matchingRateSumPassenger) * cb + Param.THETA_P};
