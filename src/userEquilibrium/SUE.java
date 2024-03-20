@@ -21,11 +21,11 @@ public class SUE {
     double sumCost; // 总出行成本
     MatchingProcess matching;
 
-    public SUE(int W, double Nt, double[] size_rate,
+    public SUE(int W, double Nt, double[] sizeRate,
                double[] driverAffordRate, double[] passengerAffordRate) {
         this.Nt = Nt;
         this.W = W;
-        this.sizeRate = size_rate;
+        this.sizeRate = sizeRate;
         this.driverAffordRate = driverAffordRate;
         this.passengerAffordRate = passengerAffordRate;
 
@@ -41,7 +41,7 @@ public class SUE {
         }
         for (int i = 0; i < W; i++) {
             for (int j = 0; j < Param.M; j++) {
-                na[i][j] = size_rate[i] * probSolve[i][j] * Nt;
+                na[i][j] = sizeRate[i] * probSolve[i][j] * Nt;
             }
         }
 
@@ -126,17 +126,17 @@ public class SUE {
             updateCost();
             updateProb();
             count++;
-            System.out.println("期望比例");
-            printMatrix(probSolve);
-            System.out.println("实际比例");
-            printMatrix(prob);
+//            System.out.println("期望比例");
+//            printMatrix(probSolve);
+//            System.out.println("实际比例");
+//            printMatrix(prob);
             if (Param.isFree) {
                 updateRate(count);
-                System.out.println("分摊比例");
-                printArray(driverAffordRate);
-                printArray(passengerAffordRate);
+//                System.out.println("分摊比例");
+//                printArray(driverAffordRate);
+//                printArray(passengerAffordRate);
             }
-            System.out.println("第" + count + "次迭代");
+//            System.out.println("第" + count + "次迭代");
         }
     }
 
@@ -328,8 +328,8 @@ class Cost {
                     ((passengerAffordRate[index] / (passengerAffordRate[index] + driverAffordRate[i])) * Param.LAMBDA * (Param.LS + Param.LD) +
                             Param.ALPHA[index] * (Param.LS + Param.LD) / vt + Param.DISCOMFORT_P);
         }
-//        double cdd = cd + (1 - matchingRateSumDriver) * cs;
-//        double cpp = cp + (1 - matchingRateSumPassenger) * cb;
+        double cdd = cd + (1 - matchingRateSumDriver) * cs;
+        double cpp = cp + (1 - matchingRateSumPassenger) * cb;
         return new double[]{cb, cs,
                 cd + (1 - matchingRateSumDriver) * cs + Param.THETA_D,
                 cp + (1 - matchingRateSumPassenger) * cb + Param.THETA_P};

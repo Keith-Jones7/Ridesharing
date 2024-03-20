@@ -20,8 +20,9 @@ public class Param {
     public static final double DISCOMFORT_P = 0;   //乘客的舒适度成本
     public static final double THETA_D = 0;        //司机参与匹配的固定成本
     public static final double THETA_P = 0;        //乘客参与匹配的固定成本
-    public static final double[] ALPHA = {50, 60, 70, 15, 16, 17, 18, 19, 20, 21};         //行驶过程的VoT
+    public static double[] ALPHA = {60, 60, 60, 15, 16, 17, 18, 19, 20, 21};         //行驶过程的VoT
     public static boolean isFree = false;
+    public static boolean isContinuous = false;
     public static double precision = 1e-3;
     public static int maxCount = 10000;
     public static double theta = 0.05;
