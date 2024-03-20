@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
 public class SampleTest {
 
     public static void main(String[] args) {
@@ -14,6 +15,9 @@ public class SampleTest {
 //        runChapter4Example2();
     }
 
+    /**
+     * 第三章算例1
+     */
     public static void runChapter3Example1() {
         int W = 3;
         double Nt = 1500;
@@ -71,6 +75,9 @@ public class SampleTest {
         }
     }
 
+    /**
+     * 第三章算例2
+     */
     public static void runChapter3Example2() {
         int W = 3;
         double Nt = 1500;
@@ -110,6 +117,9 @@ public class SampleTest {
         saveResults("Chapter3", "Example2", "road_sum_fixed", roadSumFixed);
     }
 
+    /**
+     * 第三章算例3
+     */
     public static void runChapter3Example3() {
         int W = 2;
         double Nt = 1500;
@@ -135,6 +145,7 @@ public class SampleTest {
         saveResults("Chapter3", "Example3", "matching_rate_passenger", matchingRatePassenger);
         saveResults("Chapter3", "Example3", "cost_passenger", costPassenger);
     }
+
 
     public static void runChapter4Example1() {
 
@@ -169,7 +180,6 @@ public class SampleTest {
 
 
     /**
-     *
      * @param chapterName 章节序号
      * @param exampleName 算例序号
      * @param dataSetName 结果名称
@@ -192,11 +202,10 @@ public class SampleTest {
     }
 
     /**
-     *
-     * @param chapterName   章节序号
-     * @param exampleName   算例序号
-     * @param dataSetName   结果名称
-     * @param headers       表头
+     * @param chapterName 章节序号
+     * @param exampleName 算例序号
+     * @param dataSetName 结果名称
+     * @param headers     表头
      */
     private static void saveFormatTable(String chapterName, String exampleName, String dataSetName,
                                         String[] headers, double[] array1, double[] array2, double[] array3, double[] array4) {
@@ -218,11 +227,14 @@ public class SampleTest {
                                 array1[i], array2[i], array3[i], array4[1])
                 );
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * 矩阵转置
+     */
     public static double[][] transpose(double[][] matrix) {
         // 获取原始矩阵的行数和列数
         int rows = matrix.length;

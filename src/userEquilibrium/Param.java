@@ -1,4 +1,4 @@
-package userEquilibrium.common;
+package userEquilibrium;
 
 public class Param {
     public static final double LB = 25;            //公共交通里程

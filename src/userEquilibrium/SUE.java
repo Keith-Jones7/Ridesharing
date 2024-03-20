@@ -1,7 +1,5 @@
 package userEquilibrium;
 
-import userEquilibrium.common.Param;
-
 public class SUE {
 
     double Nt;

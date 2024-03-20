@@ -1,7 +1,5 @@
 package userEquilibrium;
 
-import userEquilibrium.common.Param;
-
 class matchSolution {
     double[][] matchingResultDriver;
     double[][] matchingResultPassenger;
