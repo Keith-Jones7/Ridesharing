@@ -8,11 +8,11 @@ import java.io.IOException;
 public class SampleTest {
 
     public static void main(String[] args) {
-        runChapter3Example1();
+//        runChapter3Example1();
 //        runChapter3Example2();
 //        runChapter3Example3();
 //        runChapter4Example1();
-//        runChapter4Example2();
+        runChapter4Example2();
     }
 
     /**
@@ -148,36 +148,104 @@ public class SampleTest {
 
 
     public static void runChapter4Example1() {
+        Param.isContinuous = true;
+        Param.isFree = true;
+        Param.ALPHA[0] = 50;
+        Param.ALPHA[1] = 60;
+        Param.ALPHA[2] = 70;
 
+        int W = 3;
+        double Nt = 1500;
+        double[] sizeRate = new double[]{1.0 / 3, 1.0 / 3, 1.0 / 3};
+
+        double[] driverAffordRate = new double[]{0.1, 0.1, 0.1};
+        double[] passengerAffordRate = new double[]{0.1, 0.1, 0.1};
+
+        SUE sue = new SUE(W, Nt, sizeRate, driverAffordRate, passengerAffordRate);
+        sue.solveSUE();
+
+        double[][] prob = sue.prob;
+        double[][] cost = sue.cost;
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Chapter4/Example1/cost.txt"))) {
+            writer.write("公共交通\t独自驾驶\t共乘司机\t共乘乘客");
+            writer.newLine();
+            for (int i = 0; i < W; i++) {
+                writer.write(String.format("%.3f（%.1f）\t%.3f（%.1f）\t%.3f（%.1f）\t%.3f（%.1f）",
+                        prob[i][0], cost[i][0], prob[i][1], cost[i][1], prob[i][2], cost[i][2], prob[i][3], cost[i][3]));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Chapter4/Example1/rates.txt"))) {
+            writer.write("作为共乘司机\t\t作为共乘乘客");
+            writer.newLine();
+            writer.write("分摊比例\t匹配成功率\t分摊比例\t匹配成功率");
+            writer.newLine();
+            for (int i = 0; i < W; i++) {
+                writer.write(String.format("%.2f\t%.2f\t%.2f\t%.2f",
+                        sue.driverAffordRate[i], sue.matching.matchSolution.matchingRateSumDriver[i],
+                        sue.passengerAffordRate[i], sue.matching.matchSolution.matchingRateSumPassenger[i]));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int size = 21;
+        int index = 2;
+        double[] vot = new double[size];
+        double[] driverAffordRates = new double[size];
+        double[] passengerAffordRates = new double[size];
+        for (int i = 0; i < size; i++) {
+            Param.ALPHA[index] = Param.ALPHA[0] + i;
+            vot[i] = Param.ALPHA[2];
+
+            SUE tempSUE = new SUE(W, Nt, sizeRate, driverAffordRate, passengerAffordRate);
+            tempSUE.solveSUE();
+            driverAffordRates[i] = tempSUE.driverAffordRate[index];
+            passengerAffordRates[i] = tempSUE.passengerAffordRate[index];
+        }
+        saveResults("Chapter4", "Example1", "vot", vot);
+        saveResults("Chapter4", "Example1", "driver_afford_rate", driverAffordRates);
+        saveResults("Chapter4", "Example1", "passenger_afford_rate", passengerAffordRates);
     }
 
     public static void runChapter4Example2() {
+        Param.isContinuous = true;
+        Param.isFree = true;
+        Param.ALPHA[0] = 50;
+        Param.ALPHA[1] = 60;
+        Param.ALPHA[2] = 70;
+
+        int W = 3;
+        double Nt = 1500;
+        double[] sizeRate = new double[]{0, 1.0 / 3, 2.0 / 3};
+
+        double[] driverAffordRate = new double[]{0.1, 0.1, 0.1};
+        double[] passengerAffordRate = new double[]{0.1, 0.1, 0.1};
+
+        int size = 67;
+        double[] nums = new double[size];
+        double[] matchSum = new double[size];
+        double[] nc = new double[size];
+
+        for (int i = 0; i < size; i++) {
+            sizeRate[0] += 0.01;
+            sizeRate[2] -= 0.01;
+            nums[i] = Nt * sizeRate[0];
+            SUE sue = new SUE(W, Nt, sizeRate, driverAffordRate, passengerAffordRate);
+            sue.solveSUE();
+            matchSum[i] = sue.nMatchingSum;
+            nc[i] = sue.nc;
+        }
+        saveResults("Chapter4", "Example2", "nums", nums);
+        saveResults("Chapter4", "Example2", "match_sum", matchSum);
+        saveResults("Chapter4", "Example2", "nc", nc);
 
     }
-//    public void generateSample4_2() {
-//        W = 3;
-//        Nt = 1500;
-//        driverAffordRate = new double[]{0.1, 0.1, 0.1};
-//        passengerAffordRate = new double[]{0.1, 0.1, 0.1};
-//        sizeRate = new double[]{1.0 / 3, 1.0 / 3, 1.0 / 3};
-//        double size1 = 0, size3 = 1 - 1.0 / 3;
-//        double[] matchSum = new double[67];
-//        double[] nc = new double[67];
-//        int index = 0;
-//        while (size3 > 0) {
-//            sizeRate[0] = size1;
-//            sizeRate[2] = size3;
-//            size1 += 0.01;
-//            size3 -= 0.01;
-//            SUE sue = new SUE(W, Nt, sizeRate, driverAffordRate, passengerAffordRate);
-//            sue.solveSUE();
-//            nc[index] = sue.nc;
-//            matchSum[index++] = sue.nMatchingSum;
-//        }
-//        String fileName = "matchSum.txt";
-//        write(fileName, matchSum, nc);
-//    }
-
 
     /**
      * @param chapterName 章节序号
@@ -192,7 +260,7 @@ public class SampleTest {
         }
 
         String filePath = directory.getPath() + File.separator + dataSetName + ".txt";
-        try (BufferedWriter out = new BufferedWriter(new FileWriter(new File(filePath)))) {
+        try (BufferedWriter out = new BufferedWriter(new FileWriter(filePath))) {
             for (double num : array) {
                 out.write(String.format("%.6f", num) + "\n");
             }
